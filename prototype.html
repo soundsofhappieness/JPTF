@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>МИР Пэй</title>
+    <style>
+        :root {
+            --primary: #2B5F6D;
+            --accent: #32B8C6;
+            --success: #4CAF50;
+            --error: #C01530;
+            --gray-light: #F5F5F5;
+            --gray-lighter: #FAFAFA;
+            --gray-dark: #333333;
+            --gray-text: #999999;
+            --border: #E8E8E8;
+            --blue: #0052CC;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: white;
+            color: var(--gray-dark);
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: white;
+            border-radius: 40px;
+            border: 12px solid #333;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            margin: 20px auto;
+            position: relative;
+        }
+
+        .status-bar {
+            background: white;
+            color: var(--gray-dark);
+            padding: 8px 16px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 44px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .screen {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            background: var(--gray-lighter);
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Главный экран */
+        .main-screen {
+            background: var(--gray-lighter);
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            padding: 16px 16px 8px;
+            color: var(--gray-dark);
+        }
+
+        .card-container {
+            padding: 12px 16px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            border-radius: 16px;
+            padding: 20px;
+            color: white;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-label {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-number {
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .balance {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 12px 0;
+            color: white;
+        }
+
+        .balance-label {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+
+        .transaction-section {
+            background: white;
+            margin-top: 12px;
+            padding: 0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            background: white;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .transaction-list {
+            padding: 0;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-item:active {
+            background: var(--gray-lighter);
+        }
+
+        .transaction-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .transaction-icon.income {
+            background: rgba(76, 175, 80, 0.15);
+        }
+
+        .transaction-icon.expense {
+            background: rgba(192, 21, 47, 0.15);
+        }
+
+        .transaction-details h4 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: var(--gray-dark);
+        }
+
+        .transaction-details p {
+            font-size: 12px;
+            color: var(--gray-text);
+        }
+
+        .transaction-amount {
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .amount-income {
+            color: var(--success);
+        }
+
+        .amount-expense {
+            color: var(--error);
+        }
+
+        /* Экран Карты */
+        .cards-screen {
+            padding: 0;
+        }
+
+        .cards-header {
+            padding: 16px;
+            font-size: 28px;
+            font-weight: 700;
+            background: white;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cards-content {
+            padding: 12px 16px;
+        }
+
+        .cards-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 12px;
+            margin-bottom: 12px;
+            color: var(--gray-dark);
+        }
+
+        .card-item {
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .card-item:active {
+            background: var(--gray-light);
+        }
+
+        .card-thumb {
+            width: 56px;
+            height: 36px;
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .card-item-info {
+            flex: 1;
+        }
+
+        .card-item-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--gray-dark);
+        }
+
+        .card-item-number {
+            font-size: 12px;
+            color: var(--gray-text);
+        }
+
+        .card-item-badge {
+            width: 28px;
+            height: 28px;
+            background: var(--success);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .add-card-button {
+            width: 100%;
+            padding: 14px 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .add-card-button-primary {
+            background: var(--blue);
+            color: white;
+        }
+
+        .add-card-button-primary:active {
+            opacity: 0.9;
+            transform: scale(0.98);
+        }
+
+        .add-card-button-secondary {
+            background: white;
+            color: var(--blue);
+            border: 1px solid var(--blue);
+        }
+
+        .add-card-button-secondary:active {
+            background: var(--gray-light);
+        }
+
+        /* Экран выбора банка */
+        .bank-select-screen {
+            flex-direction: column;
+            padding: 0;
+            background: var(--gray-lighter);
+        }
+
+        .bank-header {
+            background: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .bank-back-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            color: var(--gray-dark);
+        }
+
+        .bank-header-title {
+            flex: 1;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--gray-dark);
+        }
+
+        .bank-header-spacer {
+            width: 36px;
+        }
+
+        .bank-search {
+            padding: 16px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .bank-search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--gray-lighter);
+        }
+
+        .bank-search-input::placeholder {
+            color: var(--gray-text);
+        }
+
+        .bank-search-input:focus {
+            outline: none;
+            border-color: var(--blue);
+            background: white;
+        }
+
+        .bank-list {
+            padding: 16px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .bank-item {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bank-item:active {
+            background: var(--gray-light);
+            transform: scale(0.98);
+        }
+
+        .bank-logo {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            font-weight: 700;
+        }
+
+        .bank-logo.fish {
+            background: linear-gradient(135deg, #1e90ff 0%, #00bfff 100%);
+        }
+
+        .bank-logo.boar {
+            background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+        }
+
+        .bank-logo.eagle {
+            background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+        }
+
+        .bank-logo.wolf {
+            background: linear-gradient(135deg, #696969 0%, #2f4f4f 100%);
+        }
+
+        .bank-logo.bear {
+            background: linear-gradient(135deg, #8b6914 0%, #daa520 100%);
+        }
+
+        .bank-logo.fox {
+            background: linear-gradient(135deg, #ff4500 0%, #ff6347 100%);
+        }
+
+        .bank-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-dark);
+        }
+
+        /* Экран Настройки */
+        .settings-screen {
+            padding: 0;
+        }
+
+        .settings-header {
+            padding: 16px;
+            font-size: 28px;
+            font-weight: 700;
+            background: white;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .settings-content {
+            padding: 0;
+        }
+
+        .settings-group {
+            background: white;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-item:active {
+            background: var(--gray-light);
+        }
+
+        .settings-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .settings-icon {
+            font-size: 20px;
+            width: 32px;
+            text-align: center;
+        }
+
+        .settings-info h4 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: var(--gray-dark);
+        }
+
+        .settings-info p {
+            font-size: 12px;
+            color: var(--gray-text);
+        }
+
+        .settings-arrow {
+            font-size: 16px;
+            color: var(--gray-text);
+        }
+
+        .toggle-switch {
+            width: 44px;
+            height: 28px;
+            background: #E8E8E8;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+            position: relative;
+            border: none;
+        }
+
+        .toggle-switch.active {
+            background: var(--success);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: left 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: 18px;
+        }
+
+        /* Экран Ещё */
+        .more-screen {
+            padding: 0;
+        }
+
+        .more-header {
+            padding: 16px;
+            font-size: 28px;
+            font-weight: 700;
+            background: white;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .more-content {
+            padding: 0;
+        }
+
+        .more-item {
+            background: white;
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .more-item:last-child {
+            border-bottom: none;
+        }
+
+        .more-item:active {
+            background: var(--gray-light);
+        }
+
+        .more-icon {
+            font-size: 20px;
+            width: 32px;
+            text-align: center;
+            opacity: 0.6;
+        }
+
+        .more-item-text {
+            flex: 1;
+        }
+
+        .more-item-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-dark);
+        }
+
+        .more-item-desc {
+            font-size: 12px;
+            color: var(--gray-text);
+            margin-top: 4px;
+        }
+
+        .bottom-nav {
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            background: white;
+            height: 60px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            font-size: 22px;
+            opacity: 0.5;
+            transition: all 0.3s;
+        }
+
+        .nav-item.active {
+            opacity: 1;
+            color: var(--blue);
+        }
+
+        .nav-label {
+            font-size: 10px;
+            color: var(--gray-dark);
+            opacity: 0.6;
+        }
+
+        .nav-item.active .nav-label {
+            color: var(--blue);
+            opacity: 1;
+        }
+
+        .spacer {
+            height: 60px;
+        }
+
+        /* Toast уведомление */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                bottom: -100px;
+                opacity: 0;
+            }
+            to {
+                bottom: 100px;
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="status-bar">
+            <span>9:41</span>
+            <span style="text-align: center; flex: 1;"></span>
+            <span>🔋</span>
+        </div>
+
+        <!-- Главный экран -->
+        <div class="screen main-screen active" id="mainScreen">
+            <div class="header-title">МИР</div>
+
+            <div class="card-container" id="mainCardContainer">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-label">Карта МИР</div>
+                        <div class="card-number">2204 •••• •••• 1111</div>
+                        <div class="balance-label">Баланс</div>
+                        <div class="balance">₽ 5 230</div>
+                        <div class="card-footer">
+                            <div>Действительна до 01/26</div>
+                            <div>CVV: •••</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="transaction-section">
+                <div class="section-header">История транзакций</div>
+                <div class="transaction-list">
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-icon income">✓</div>
+                            <div class="transaction-details">
+                                <h4>Зарплата</h4>
+                                <p>19 января</p>
+                            </div>
+                        </div>
+                        <div class="transaction-amount amount-income">+00 030 ₽</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-icon expense">✗</div>
+                            <div class="transaction-details">
+                                <h4>Яндекс Лавка</h4>
+                                <p>18 января</p>
+                            </div>
+                        </div>
+                        <div class="transaction-amount amount-expense">-1 250 ₽</div>
+                    </div>
+                    <div class="transaction-item">
+                        <div class="transaction-info">
+                            <div class="transaction-icon expense">✗</div>
+                            <div class="transaction-details">
+                                <h4>Рога и копыта </h4>
+                                <p>17 января</p>
+                            </div>
+                        </div>
+                        <div class="transaction-amount amount-expense">-850 ₽</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="spacer"></div>
+        </div>
+
+        <!-- Экран Карты -->
+        <div class="screen cards-screen" id="cardsScreen">
+            <div class="cards-header">Карты</div>
+            <div class="cards-content">
+                <div class="cards-section-title">Платежные карты</div>
+                <div class="card-item" onclick="toggleDefaultCard(0)">
+                    <div class="card-thumb">МИР</div>
+                    <div class="card-item-info">
+                        <div class="card-item-name">Желтый банк</div>
+                        <div class="card-item-number">••1111</div>
+                    </div>
+                    <div class="card-item-badge" id="badge0">✓</div>
+                </div>
+                <div class="card-item" onclick="toggleDefaultCard(1)">
+                    <div class="card-thumb">МИР</div>
+                    <div class="card-item-info">
+                        <div class="card-item-name">Коричневый банк</div>
+                        <div class="card-item-number">••5267</div>
+                    </div>
+                    <div class="card-item-badge" id="badge1" style="display: none;"></div>
+                </div>
+
+                <div id="sbpCardsContainer"></div>
+
+                <div class="add-card-button add-card-button-primary" onclick="alert('Добавление карты')">
+                    <span>+</span> Добавить карту
+                </div>
+                <div class="add-card-button add-card-button-secondary" onclick="switchScreen('bankSelectScreen', -1)">
+                    <span>+</span> Добавить СБП
+                </div>
+
+                <div class="spacer"></div>
+            </div>
+        </div>
+
+        <!-- Экран выбора банка СБП -->
+        <div class="screen bank-select-screen" id="bankSelectScreen">
+            <div class="bank-header">
+                <button class="bank-back-btn" onclick="switchScreen('cardsScreen', 1)">←</button>
+                <div class="bank-header-title">Выберите ваш банк</div>
+                <div class="bank-header-spacer"></div>
+            </div>
+
+            <div class="bank-search">
+                <input type="text" class="bank-search-input" placeholder="🔍 Поиск банка" id="bankSearchInput" oninput="filterBanks()">
+            </div>
+
+            <div class="bank-list" id="bankList">
+                <div class="bank-item" onclick="selectBank('Рыба', 'fish', '🐠')">
+                    <div class="bank-logo fish">🐠</div>
+                    <div class="bank-name">Рыба</div>
+                </div>
+                <div class="bank-item" onclick="selectBank('Кабан', 'boar', '🐗')">
+                    <div class="bank-logo boar">🐗</div>
+                    <div class="bank-name">Кабан</div>
+                </div>
+                <div class="bank-item" onclick="selectBank('Орёл', 'eagle', '🦅')">
+                    <div class="bank-logo eagle">🦅</div>
+                    <div class="bank-name">Орёл</div>
+                </div>
+                <div class="bank-item" onclick="selectBank('Волк', 'wolf', '🐺')">
+                    <div class="bank-logo wolf">🐺</div>
+                    <div class="bank-name">Волк</div>
+                </div>
+                <div class="bank-item" onclick="selectBank('Медведь', 'bear', '🐻')">
+                    <div class="bank-logo bear">🐻</div>
+                    <div class="bank-name">Медведь</div>
+                </div>
+                <div class="bank-item" onclick="selectBank('Лиса', 'fox', '🦊')">
+                    <div class="bank-logo fox">🦊</div>
+                    <div class="bank-name">Лиса</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран Настройки -->
+        <div class="screen settings-screen" id="settingsScreen">
+            <div class="settings-header">Настройки</div>
+            <div class="settings-content">
+                <div class="settings-group">
+                    <div class="settings-item" onclick="alert('Аудио')">
+                        <div class="settings-item-left">
+                            <div class="settings-icon">🔊</div>
+                            <div class="settings-info">
+                                <h4>Аудио</h4>
+                            </div>
+                        </div>
+                        <div class="settings-arrow">›</div>
+                    </div>
+                    <div class="settings-item" onclick="alert('Оформление')">
+                        <div class="settings-item-left">
+                            <div class="settings-icon">🎨</div>
+                            <div class="settings-info">
+                                <h4>Оформление</h4>
+                            </div>
+                        </div>
+                        <div class="settings-arrow">›</div>
+                    </div>
+                    <div class="settings-item" onclick="alert('Биометрия')">
+                        <div class="settings-item-left">
+                            <div class="settings-icon">👆</div>
+                            <div class="settings-info">
+                                <h4>Биометрия</h4>
+                            </div>
+                        </div>
+                        <div class="settings-arrow">›</div>
+                    </div>
+                </div>
+
+                <div class="settings-group">
+                    <div class="settings-item">
+                        <div class="settings-item-left">
+                            <div class="settings-icon">💳</div>
+                            <div class="settings-info">
+                                <h4>Основное платежное приложение</h4>
+                                <p>Использовать Mir Pay в качестве основного платежного приложения</p>
+                            </div>
+                        </div>
+                        <button class="toggle-switch active" onclick="toggleSwitch(this)"></button>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-item-left">
+                            <div class="settings-icon">✓</div>
+                            <div class="settings-info">
+                                <h4>Запрос подтверждения при оплате</h4>
+                            </div>
+                        </div>
+                        <button class="toggle-switch active" onclick="toggleSwitch(this)"></button>
+                    </div>
+                    <div class="settings-item">
+                        <div class="settings-item-left">
+                            <div class="settings-icon">📍</div>
+                            <div class="settings-info">
+                                <h4>Геолокация</h4>
+                                <p>Для автоматического определения вашего местоположения</p>
+                            </div>
+                        </div>
+                        <span style="color: var(--success); font-size: 12px; font-weight: 500;">Включена</span>
+                    </div>
+                    <div class="settings-item" onclick="alert('Местоположение')">
+                        <div class="settings-item-left">
+                            <div class="settings-icon">🗺️</div>
+                            <div class="settings-info">
+                                <h4>Местоположение</h4>
+                                <p>Для настройки работы приложения за пределами Российской Федерации</p>
+                            </div>
+                        </div>
+                        <div class="settings-arrow">›</div>
+                    </div>
+                </div>
+
+                <div class="spacer"></div>
+            </div>
+        </div>
+
+        <!-- Экран Ещё -->
+        <div class="screen more-screen" id="moreScreen">
+            <div class="more-header">Ещё</div>
+            <div class="more-content">
+                <div class="more-item" onclick="alert('Банки-участники')">
+                    <div class="more-icon">🏢</div>
+                    <div class="more-item-text">
+                        <div class="more-item-title">Банки-участники</div>
+                    </div>
+                </div>
+                <div class="more-item" onclick="alert('О приложении Mir Pay')">
+                    <div class="more-icon">ℹ️</div>
+                    <div class="more-item-text">
+                        <div class="more-item-title">О приложении Mir Pay</div>
+                    </div>
+                </div>
+                <div class="more-item" onclick="alert('Написать нам')">
+                    <div class="more-icon">💬</div>
+                    <div class="more-item-text">
+                        <div class="more-item-title">Написать нам</div>
+                    </div>
+                </div>
+                <div class="more-item" onclick="alert('Частые вопросы')">
+                    <div class="more-icon">❓</div>
+                    <div class="more-item-text">
+                        <div class="more-item-title">Частые вопросы</div>
+                    </div>
+                </div>
+
+                <div class="spacer"></div>
+            </div>
+        </div>
+
+        <!-- Навигация -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchScreen('mainScreen', 0)">
+                <span>🏠</span>
+                <span class="nav-label">Главная</span>
+            </div>
+            <div class="nav-item" onclick="switchScreen('cardsScreen', 1)">
+                <span>💳</span>
+                <span class="nav-label">Карты</span>
+            </div>
+            <div class="nav-item" onclick="switchScreen('settingsScreen', 2)">
+                <span>⚙️</span>
+                <span class="nav-label">Настройки</span>
+            </div>
+            <div class="nav-item" onclick="switchScreen('moreScreen', 3)">
+                <span>⋯</span>
+                <span class="nav-label">Ещё</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let sbpCards = [];
+        let defaultCardIndex = 0;
+
+        const banks = [
+            { name: 'Рыба', emoji: '🐠', class: 'fish' },
+            { name: 'Кабан', emoji: '🐗', class: 'boar' },
+            { name: 'Орёл', emoji: '🦅', class: 'eagle' },
+            { name: 'Волк', emoji: '🐺', class: 'wolf' },
+            { name: 'Медведь', emoji: '🐻', class: 'bear' },
+            { name: 'Лиса', emoji: '🦊', class: 'fox' }
+        ];
+
+        function switchScreen(screenId, navIndex) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+
+            if (navIndex >= 0) {
+                document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+            }
+        }
+
+        function toggleSwitch(button) {
+            button.classList.toggle('active');
+        }
+
+        function filterBanks() {
+            const searchInput = document.getElementById('bankSearchInput').value.toLowerCase();
+            const bankItems = document.querySelectorAll('.bank-item');
+            
+            bankItems.forEach(item => {
+                const bankName = item.querySelector('.bank-name').textContent.toLowerCase();
+                if (bankName.includes(searchInput)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function selectBank(bankName, bankClass, bankEmoji) {
+            // Показываем toast
+            showToast('🎉✨ Поздравляем! Вы добавили СБП, платите в одно касание!');
+
+            // Добавляем СБП карту
+            sbpCards.push({
+                name: bankName,
+                class: bankClass,
+                emoji: bankEmoji,
+                number: '••' + Math.floor(Math.random() * 9000 + 1000)
+            });
+
+            // Обновляем список карт
+            updateCardsList();
+
+            // Переходим на экран Карты
+            setTimeout(() => {
+                switchScreen('cardsScreen', 1);
+            }, 1500);
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function updateCardsList() {
+            const container = document.getElementById('sbpCardsContainer');
+            container.innerHTML = '';
+
+            sbpCards.forEach((card, index) => {
+                const cardHTML = `
+                    <div class="card-item" onclick="toggleDefaultCard(${index + 2})">
+                        <div class="card-thumb" style="background: linear-gradient(135deg, #667eea, #764ba2); font-size: 16px;">СБП</div>
+                        <div class="card-item-info">
+                            <div class="card-item-name">${card.name}</div>
+                            <div class="card-item-number">${card.number}</div>
+                        </div>
+                        <div class="card-item-badge" id="badge${index + 2}" style="display: none;">✓</div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            });
+        }
+
+        function toggleDefaultCard(index) {
+            // Скрываем все галочки
+            document.querySelectorAll('.card-item-badge').forEach(badge => {
+                badge.style.display = 'none';
+            });
+
+            // Показываем галочку выбранной карты
+            document.getElementById('badge' + index).style.display = 'flex';
+            defaultCardIndex = index;
+
+            // Обновляем главный экран
+            updateMainCard();
+        }
+
+        function updateMainCard() {
+            const container = document.getElementById('mainCardContainer');
+            
+            if (defaultCardIndex < 2) {
+                // Стандартная карта МИР
+                container.innerHTML = `
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="card-label">Карта МИР</div>
+                            <div class="card-number">2204 •••• •••• ${defaultCardIndex === 0 ? '1111' : '5267'}</div>
+                            <div class="balance-label">Баланс</div>
+                            <div class="balance">₽ 30</div>
+                            <div class="card-footer">
+                                <div>Действительна до 12/26</div>
+                                <div>CVV: •••</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // СБП карта
+                const sbpCard = sbpCards[defaultCardIndex - 2];
+                container.innerHTML = `
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="card-label">СБП • ${sbpCard.name}</div>
+                            <div class="card-number">${sbpCard.emoji} ${sbpCard.number}</div>
+                            <div class="balance-label">Баланс</div>
+                            <div class="balance">₽ 111 000 111</div>
+                            <div class="card-footer">
+                                <div>СБП платёж</div>
+                                <div>Мгновенно</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Инициализируем приложение
+        document.getElementById('badge0').style.display = 'flex';
+    </script>
+</body>
+</html>
